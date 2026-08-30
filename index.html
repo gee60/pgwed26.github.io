@@ -3,7 +3,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,22 +11,39 @@
     <style>
         body { font-family: sans-serif; text-align: center; padding: 20px; background-color: transparent; }
         h2 { font-family: 'Times New Roman', font-size: 48px; color: #000000; margin-bottom: 20px; }
-        .input-field { width: 85%; max-width: 400px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 8px; outline: none; margin: 10px auto; display: block; }
+        
+        /* Sharp edges (border-radius: 0) */
+        .input-field { width: 85%; max-width: 400px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 0px; outline: none; margin: 10px auto; display: block; background: #ffffff; }
         .input-field:focus { border-color: #818362; }
         .hidden { display: none; }
+        
         .btn { padding: 12px 25px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; transition: opacity 0.3s; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .search-btn { background-color: #b7a9d7; color: white; width: 85%; max-width: 435px; }
+        
+        /* Search Button: Sharp edges and background color #8a9a5b */
+        .search-btn { background-color: #8a9a5b; color: white; border: 2px solid #8a9a5b; border-radius: 0px; width: 85%; max-width: 435px; }
+        .search-btn:hover { opacity: 0.9; }
+
         .yes { background-color: #818362; color: white; }
-        .no { background-color: #691420; color: white; }
-        #status-box { margin-top: 20px; padding: 25px; border: 1px solid #eee; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        select { padding: 12px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; }
-        #validation-msg { color: #d9534f; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; }
-        #feedback { margin-top: 15px; font-style: italic; color: #d9534f; font-weight: bold; }
+        .no { background-color: #dca1a1; color: white; }
+        #status-box { margin-top: 20px; padding: 25px; border: 1px solid #eee; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; margin-left: auto; margin-right: auto;}
+        select { padding: 12px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; background: #ffffff; }
+        #validation-msg { color: #dca1a1; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; }
+        #feedback { margin-top: 15px; font-style: italic; color: #dca1a1; font-weight: bold; }
+        
+        /* Checkbox styling container */
+        .checkbox-container { width: 85%; max-width: 435px; margin: 5px auto 15px auto; text-align: left; font-size: 0.95em; color: #555; }
+
+        /* Message Wall Styling - Wall cards set to #f7e6ca with sharp edges */
+        #wall-container { margin-top: 40px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: left; }
+        .wall-card { background: #f7e6ca; border: 1px solid #e0caa8; padding: 15px; border-radius: 0px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .wall-card h4 { margin: 0 0 5px 0; color: #333; font-size: 1.1em; }
+        .wall-card p { margin: 5px 0; color: #444; font-size: 0.95em; word-break: break-word; }
+        .wall-card .meta { font-size: 0.8em; color: #666; text-align: right; }
     </style>
 </head>
 <body>
-    <h2>FIND YOUR INVITATION</h2>
+    <h2><!FIND YOUR INVITATION HERE></h2>
     <input type="text" id="nameInput" class="input-field" placeholder="Full Name">
     <input type="text" id="accessCode" class="input-field" placeholder="4-Digit Access Code">
     <button onclick="searchName()" class="btn search-btn">Search Invitation</button>
@@ -43,10 +59,19 @@
                 <select id="companionCount" onchange="toggleCompanionNames()"></select>
                 <div id="names-input-area" class="hidden">
                     <p>Please list their names (separated by commas):</p>
-                    <textarea id="compNamesInput" class="input-field" oninput="validateNames()" placeholder="e.g. Gen dejesus, Pam dela Cruz" rows="3"></textarea>
+                    <textarea id="compNamesInput" class="input-field" oninput="validateNames()" placeholder="e.g. Gen de Jesus, Pam dela Cruz" rows="3"></textarea>
                     <p id="validation-msg"></p>
                 </div>
             </div>
+
+            <p>Leave a message or wish for the couple:</p>
+            <textarea id="guestMessageInput" class="input-field" placeholder="Write your message or paste a GIF link..." rows="3"></textarea>
+            <div class="checkbox-container">
+                <label style="cursor: pointer;">
+                    <input type="checkbox" id="anonymousCheck"> Post message anonymously
+                </label>
+            </div>
+
             <p>Please confirm your attendance:</p>
             <button id="submitYes" onclick="updateRSVP('Attending')" class="btn yes">I'm Attending</button>
             <button onclick="updateRSVP('Not Attending')" class="btn no">I Can't Make It</button>
@@ -55,14 +80,73 @@
         <div id="locked-msg" class="hidden">
             <hr style="border:0; border-top: 1px solid #eee; margin: 20px 0;">
             <p id="confirmationText" style="font-weight: bold; font-size: 1.1em;"></p>
+            <div id="userMessageDisplay" style="margin-top: 10px; font-style: italic; color: #555;"></div>
         </div>
     </div>
     <p id="feedback"></p>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2ZRp0P3i0mOmNaXoiyvicgpRTLObFQeedurraA5GNzxzvLLil0tomDAGauY3Nx6wv/exec";
+    <div id="wall-container">
+        <h3 style="text-align: center; font-family: 'Times New Roman', serif; font-size: 28px;"><!Wishes & Messages></h3>
+        <div id="messagesList">Loading messages...</div>
+    </div>
 
-        function setConfirmationMessage(status) {
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKqLhcL4m7xxhinbs9udTAEnoq_X435MoZ6li92mBMq4n4MPbgdcfRNLKv4DNZ2amt/exec";
+
+        window.onload = function() {
+            loadPublicMessages();
+        };
+
+        async function loadPublicMessages() {
+            const listEl = document.getElementById('messagesList');
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const messages = await response.json();
+                
+                if (messages.length === 0) {
+                    listEl.innerHTML = "<p style='text-align: center; color: #888;'>No messages yet. Be the first to leave a wish!</p>";
+                    return;
+                }
+
+                // Reverse the array so the newest messages appear at the top
+                messages.reverse();
+
+                let html = "";
+                messages.forEach(item => {
+                    let messageContent = "";
+                    const msgText = item.message || "";
+                    const gifRegex = /(https?:\/\/[^\s]+\.gif(\?[^\s]*)?)/gi;
+
+                    if (gifRegex.test(msgText)) {
+                        let textOnly = msgText.replace(gifRegex, '').trim();
+                        if (textOnly) {
+                            messageContent += `<p>"${textOnly}"</p>`;
+                        }
+                        const matches = msgText.match(gifRegex);
+                        if (matches) {
+                            matches.forEach(url => {
+                                messageContent += `<img src="${url}" alt="GIF" style="max-width: 100%; border-radius: 0px; margin-top: 8px; display: block; margin-left: auto; margin-right: auto;">`;
+                            });
+                        }
+                    } else if (msgText.trim() !== "") {
+                        messageContent += `<p>"${msgText}"</p>`;
+                    }
+
+                    html += `
+                        <div class="wall-card">
+                            <h4>${item.name}</h4>
+                            ${messageContent}
+                            <div class="meta">${item.timestamp}</div>
+                        </div>
+                    `;
+                });
+                listEl.innerHTML = html;
+            } catch (e) {
+                listEl.innerHTML = "<p style='text-align: center; color: #dca1a1;'>Unable to load messages.</p>";
+            }
+        }
+
+        function setConfirmationMessage(status, message, isAnon) {
             const textElement = document.getElementById('confirmationText');
             const statusLower = String(status).toLowerCase();
             if (statusLower.includes("attending") && !statusLower.includes("not")) {
@@ -70,7 +154,12 @@
                 textElement.style.color = "#818362";
             } else {
                 textElement.innerText = "Your RSVP is confirmed. We're sorry you can't make it!";
-                textElement.style.color = "#691420";
+                textElement.style.color = "#dca1a1";
+            }
+            
+            if (message) {
+                const authorDisplay = isAnon ? "Anonymous" : "You";
+                document.getElementById('userMessageDisplay').innerText = `Your message (${authorDisplay}): "${message}"`;
             }
             document.getElementById('locked-msg').classList.remove('hidden');
         }
@@ -85,7 +174,7 @@
             if (namesArray.length !== countRequired) {
                 submitBtn.disabled = true;
                 msg.innerText = `Please enter exactly ${countRequired} name(s).`;
-                msg.style.color = "#d9534f";
+                msg.style.color = "#dca1a1";
             } else {
                 submitBtn.disabled = false;
                 msg.innerText = "✓ Names confirmed.";
@@ -105,7 +194,7 @@
             const feedbackEl = document.getElementById('feedback');
 
             if (!name || !code) {
-                feedbackEl.style.color = "#d9534f";
+                feedbackEl.style.color = "#dca1a1";
                 feedbackEl.innerText = "Please enter both your full name and access code.";
                 return;
             }
@@ -118,7 +207,7 @@
                 const text = await response.text();
                 
                 if (text === "Invalid Code" || text === "Not Found") {
-                    feedbackEl.style.color = "#d9534f";
+                    feedbackEl.style.color = "#dca1a1";
                     feedbackEl.innerText = text === "Invalid Code" ? "Incorrect access code. Please try again or contact Pam/Gen" : "Name not found on the guest list.";
                     document.getElementById('status-box').className = "hidden";
                 } else {
@@ -129,10 +218,12 @@
                     document.getElementById('status-box').className = "";
                     if (data.status !== "Pending") {
                         document.getElementById('rsvp-actions').className = "hidden";
-                        setConfirmationMessage(data.status);
+                        setConfirmationMessage(data.status, data.message, false);
                     } else {
                         document.getElementById('rsvp-actions').className = "";
                         document.getElementById('locked-msg').className = "hidden";
+                        document.getElementById('guestMessageInput').value = ""; 
+                        document.getElementById('anonymousCheck').checked = false;
                         const select = document.getElementById('companionCount');
                         select.innerHTML = "";
                         for (let i = 0; i <= data.max; i++) {
@@ -145,7 +236,7 @@
                     }
                 }
             } catch (e) { 
-                feedbackEl.style.color = "#d9534f";
+                feedbackEl.style.color = "#dca1a1";
                 feedbackEl.innerText = "Error connecting to the server."; 
             }
         }
@@ -154,6 +245,8 @@
             const name = document.getElementById('nameInput').value;
             const companions = document.getElementById('companionCount').value || 0;
             const companionNames = document.getElementById('compNamesInput').value || "";
+            const message = document.getElementById('guestMessageInput').value.trim();
+            const isAnonymous = document.getElementById('anonymousCheck').checked;
             const feedbackEl = document.getElementById('feedback');
 
             feedbackEl.style.color = "#333";
@@ -162,20 +255,28 @@
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ name: name, status: newStatus, companions: companions, companionNames: companionNames })
+                    body: JSON.stringify({ 
+                        name: name, 
+                        status: newStatus, 
+                        companions: companions, 
+                        companionNames: companionNames, 
+                        message: message,
+                        isAnonymous: isAnonymous
+                    })
                 });
                 if (await response.text() === "Success") {
                     const displayStatus = companions > 0 ? `${newStatus} (+${companions})` : newStatus;
                     document.getElementById('currentStatus').innerText = displayStatus;
                     document.getElementById('rsvp-actions').className = "hidden";
-                    setConfirmationMessage(displayStatus);
+                    setConfirmationMessage(displayStatus, message, isAnonymous);
                     feedbackEl.innerText = "";
+                    loadPublicMessages(); 
                 } else {
-                    feedbackEl.style.color = "#d9534f";
+                    feedbackEl.style.color = "#dca1a1";
                     feedbackEl.innerText = "Failed to update RSVP.";
                 }
             } catch (e) { 
-                feedbackEl.style.color = "#d9534f";
+                feedbackEl.style.color = "#dca1a1";
                 feedbackEl.innerText = "Failed to save."; 
             }
         }
