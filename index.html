@@ -1,7 +1,6 @@
 <!-- Below is the html code for www.pamgen.com/rsvp-->
 <!-- Created by Genesis de jesus 8/14/2026-->
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,9 +32,26 @@
         /* Checkbox styling container */
         .checkbox-container { width: 85%; max-width: 435px; margin: 5px auto 15px auto; text-align: left; font-size: 0.95em; color: #555; }
 
-        /* Message Wall Styling - Wall cards set to #f7e6ca with sharp edges */
-        #wall-container { margin-top: 40px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: left; }
-        .wall-card { background: #f7e6ca; border: 1px solid #e0caa8; padding: 15px; border-radius: 0px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        /* Message Wall Carousel Styling (Option 2) */
+        #wall-container { margin-top: 40px; max-width: 100%; width: 90%; margin-left: auto; margin-right: auto; text-align: left; }
+        #messagesList {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            scroll-behavior: smooth;
+            padding: 10px 5px 20px 5px;
+            scrollbar-width: thin;
+        }
+        .wall-card { 
+            background: #f7e6ca; 
+            border: 1px solid #e0caa8; 
+            padding: 15px; 
+            border-radius: 0px; 
+            min-width: 280px; 
+            max-width: 280px;
+            flex: 0 0 auto; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
+        }
         .wall-card h4 { margin: 0 0 5px 0; color: #333; font-size: 1.1em; }
         .wall-card p { margin: 5px 0; color: #444; font-size: 0.95em; word-break: break-word; }
         .wall-card .meta { font-size: 0.8em; color: #666; text-align: right; }
@@ -103,11 +119,11 @@
                 const messages = await response.json();
                 
                 if (messages.length === 0) {
-                    listEl.innerHTML = "<p style='text-align: center; color: #888;'>No messages yet. Be the first to leave a wish!</p>";
+                    listEl.innerHTML = "<p style='text-align: center; color: #888; width: 100%;'>No messages yet. Be the first to leave a wish!</p>";
                     return;
                 }
 
-                // Reverse the array so the newest messages appear at the top
+                // Reverse the array so the newest messages appear at the top / front
                 messages.reverse();
 
                 let html = "";
@@ -141,7 +157,7 @@
                 });
                 listEl.innerHTML = html;
             } catch (e) {
-                listEl.innerHTML = "<p style='text-align: center; color: #dca1a1;'>Unable to load messages.</p>";
+                listEl.innerHTML = "<p style='text-align: center; color: #dca1a1; width: 100%;'>Unable to load messages.</p>";
             }
         }
 
