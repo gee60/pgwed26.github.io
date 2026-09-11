@@ -1,5 +1,6 @@
 <!-- Below is the html code for www.pamgen.com/rsvp-->
 <!-- Created by Genesis de jesus 9/11/2026-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,26 +32,49 @@
         /* Checkbox styling container */
         .checkbox-container { width: 85%; max-width: 435px; margin: 5px auto 15px auto; text-align: left; font-size: 0.95em; color: #555; }
 
-        /* Message Wall Vertical Stack Styling */
-        #wall-container { margin-top: 40px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: left; }
-        #messagesList {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 10px 0;
-        }
+        /* Auto-Rotating Gallery Slideshow Styling */
+        #wall-container { margin-top: 40px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: center; }
+        .gallery-carousel { position: relative; width: 100%; min-height: 200px; margin: 0 auto; }
         .wall-card { 
             background: #f7e6ca; 
             border: 1px solid #e0caa8; 
-            padding: 15px; 
+            padding: 20px; 
             border-radius: 0px; 
-            width: 100%;
             box-sizing: border-box;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
+            display: none;
+            text-align: left;
+            animation: fadeIn 0.5s ease-in-out;
         }
+        .wall-card.active { display: block; }
         .wall-card h4 { margin: 0 0 5px 0; color: #333; font-size: 1.1em; }
         .wall-card p { margin: 5px 0; color: #444; font-size: 0.95em; word-break: break-word; }
         .wall-card .meta { font-size: 0.8em; color: #666; text-align: right; }
+
+        /* UIPageControl-style Dot Indicators */
+        .page-control-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #d1ccb8;
+            border-radius: 50%;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .dot.active {
+            background-color: #818362;
+            transform: scale(1.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -98,11 +122,19 @@
 
     <div id="wall-container">
         <h3 style="text-align: center; font-family: 'Times New Roman', serif; font-size: 28px;"><!Wishes & Messages></h3>
-        <div id="messagesList">Loading messages...</div>
+        <div class="gallery-carousel">
+            <div id="messagesList">Loading messages...</div>
+        </div>
+        <!-- UIPageControl Dot Indicators Container -->
+        <div id="pageControl" class="page-control-dots"></div>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKqLhcL4m7xxhinbs9udTAEnoq_X435MoZ6li92mBMq4n4MPbgdcfRNLKv4DNZ2amt/exec";
+        
+        let currentIndex = 0;
+        let totalMessages = 0;
+        let autoRotateInterval = null;
 
         window.onload = function() {
             loadPublicMessages();
@@ -110,20 +142,25 @@
 
         async function loadPublicMessages() {
             const listEl = document.getElementById('messagesList');
+            const pageControlEl = document.getElementById('pageControl');
             try {
                 const response = await fetch(SCRIPT_URL);
                 const messages = await response.json();
                 
                 if (messages.length === 0) {
                     listEl.innerHTML = "<p style='text-align: center; color: #888;'>No messages yet. Be the first to leave a wish!</p>";
+                    pageControlEl.innerHTML = "";
                     return;
                 }
 
-                // Reverse the array so the newest messages appear at the top
+                // Reverse the array so latest messages appear first
                 messages.reverse();
+                totalMessages = messages.length;
 
                 let html = "";
-                messages.forEach(item => {
+                let dotsHtml = "";
+
+                messages.forEach((item, index) => {
                     let messageContent = "";
                     const msgText = item.message || "";
                     const gifRegex = /(https?:\/\/[^\s]+\.gif(\?[^\s]*)?)/gi;
@@ -143,18 +180,58 @@
                         messageContent += `<p>"${msgText}"</p>`;
                     }
 
+                    const activeClass = index === 0 ? "active" : "";
                     html += `
-                        <div class="wall-card">
+                        <div class="wall-card ${activeClass}" data-index="${index}">
                             <h4>${item.name}</h4>
                             ${messageContent}
                             <div class="meta">${item.timestamp}</div>
                         </div>
                     `;
+
+                    dotsHtml += `<div class="dot ${activeClass}" data-dot-index="${index}"></div>`;
                 });
+                
                 listEl.innerHTML = html;
+                pageControlEl.innerHTML = dotsHtml;
+                currentIndex = 0;
+                updateGalleryDisplay();
+                
+                if (totalMessages > 1) {
+                    startAutoRotate();
+                }
             } catch (e) {
                 listEl.innerHTML = "<p style='text-align: center; color: #dca1a1;'>Unable to load messages.</p>";
+                pageControlEl.innerHTML = "";
             }
+        }
+
+        function updateGalleryDisplay() {
+            const cards = document.querySelectorAll('.wall-card');
+            cards.forEach((card, index) => {
+                if (index === currentIndex) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                if (index === currentIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function startAutoRotate() {
+            if (autoRotateInterval) clearInterval(autoRotateInterval);
+            autoRotateInterval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % totalMessages;
+                updateGalleryDisplay();
+            }, 3000); // Rotates automatically every 3 seconds
         }
 
         function setConfirmationMessage(status, message, isAnon) {
