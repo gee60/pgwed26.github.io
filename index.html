@@ -1,5 +1,6 @@
 <!-- Below is the html code for www.pamgen.com/rsvp-->
-<!-- Created by Genesis de jesus 9/11/2026-->
+<!-- Created by Genesis de jesus 9/28/2026-->
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +16,7 @@
         .input-field:focus { border-color: #818362; }
         .hidden { display: none; }
         
-        .btn { padding: 12px 25px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; transition: opacity 0.3s; }
+        .btn { padding: 12px 25px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; transition: opacity 0.3s; text-decoration: none; display: inline-block; box-sizing: border-box; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
         /* Search Button: Rounded shape, matching #8a9a5b color and dimensions */
@@ -24,6 +25,11 @@
 
         .yes { background-color: #818362; color: white; }
         .no { background-color: #dca1a1; color: white; }
+        
+        /* Download Button Styling matching your theme */
+        .download-btn { background-color: #818362; color: white; width: 85%; max-width: 435px; margin-top: 15px; }
+        .download-btn:hover { opacity: 0.9; }
+
         #status-box { margin-top: 20px; padding: 25px; border: 1px solid #eee; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; margin-left: auto; margin-right: auto;}
         select { padding: 12px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; background: #ffffff; }
         #validation-msg { color: #dca1a1; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; }
@@ -95,6 +101,11 @@
     <div id="status-box" class="hidden">
         <p id="welcomeMsg" style="font-size: 1.3em; color: #333;"></p>
         <p>Current Status: <strong id="currentStatus"></strong></p>
+
+        <!-- Download Invitation Button Container -->
+        <div id="download-container" class="hidden">
+            <a id="downloadBtn" href="https://github.com/user-attachments/files/32715309/wedding_invitation.pdf" class="btn download-btn" download="PamGen_Wedding_Invitation.pdf" target="_blank">Download Your Invitation (.pdf)</a>
+        </div>
         
         <div id="rsvp-actions">
             <hr style="border:0; border-top: 1px solid #eee; margin: 20px 0;">
@@ -162,7 +173,6 @@
                     return;
                 }
 
-                // Reverse the array so latest messages appear first
                 messages.reverse();
                 totalMessages = messages.length;
 
@@ -240,7 +250,7 @@
             autoRotateInterval = setInterval(() => {
                 currentIndex = (currentIndex + 1) % totalMessages;
                 updateGalleryDisplay();
-            }, 3000); // Rotates automatically every 3 seconds
+            }, 3000);
         }
 
         function setConfirmationMessage(status, message, isAnon) {
@@ -312,6 +322,10 @@
                     feedbackEl.innerText = "";
                     document.getElementById('welcomeMsg').innerText = `Hello, ${name}!`;
                     document.getElementById('currentStatus').innerText = data.status;
+                    
+                    // Show the download button once logged in successfully
+                    document.getElementById('download-container').classList.remove('hidden');
+
                     document.getElementById('status-box').className = "";
                     if (data.status !== "Pending") {
                         document.getElementById('rsvp-actions').className = "hidden";
