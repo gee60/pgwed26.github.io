@@ -1,64 +1,67 @@
 <!-- Below is the html code for www.pamgen.com/rsvp-->
 <!-- Created by Genesis de jesus 9/28/2026-->
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Oooh+Baby&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: transparent; }
+        /* Transparent body background */
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: transparent; background: transparent; }
         h2 { font-family: 'Times New Roman', font-size: 48px; color: #000000; margin-bottom: 20px; }
         
-        .input-field { width: 85%; max-width: 400px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; outline: none; margin: 10px auto; display: block; background: #ffffff; box-sizing: border-box; }
+        /* Rounded smooth shape matching reference style while retaining background & colors */
+        .input-field { width: 85%; max-width: 400px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; outline: none; margin: 10px auto; display: block; background: #ffffff; }
         .input-field:focus { border-color: #818362; }
         .hidden { display: none; }
         
-        .btn { padding: 12px 25px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; transition: opacity 0.3s; text-decoration: none; display: inline-block; box-sizing: border-box; }
+        .btn { padding: 12px 25px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; transition: all 0.3s ease; text-decoration: none; display: inline-block; box-sizing: border-box; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
+        /* Modern PhotoApp-style Search Button with #8a9a5b */
         .search-btn { 
             background-color: #8a9a5b; 
             color: white; 
             border: none; 
             border-radius: 14px; 
             width: 85%; 
-            max-width: 400px; 
-            padding: 16px 24px;
-            font-size: 18px;
+            max-width: 435px; 
             box-shadow: 0 4px 12px rgba(138, 154, 91, 0.25);
-            transition: all 0.2s ease-in-out;
         }
         .search-btn:hover { 
-            opacity: 0.95;
             transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(138, 154, 91, 0.35);
+            box-shadow: 0 6px 16px rgba(138, 154, 91, 0.35);
+            opacity: 0.95; 
         }
         .search-btn:active {
-            transform: translateY(0);
+            transform: translateY(1px);
         }
 
         .yes { background-color: #818362; color: white; }
         .no { background-color: #dca1a1; color: white; }
         
+        /* Download Button Styling updated to #dca1a1 */
         .download-btn { background-color: #dca1a1; color: white; width: 85%; max-width: 435px; margin-top: 15px; }
         .download-btn:hover { opacity: 0.9; }
 
         #status-box { margin-top: 20px; padding: 25px; border: 1px solid #eee; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; margin-left: auto; margin-right: auto;}
-        select { padding: 12px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; background: #ffffff; box-sizing: border-box; }
+        select { padding: 12px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; background: #ffffff; }
         #validation-msg { color: #dca1a1; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; }
         #feedback { margin-top: 15px; font-style: italic; color: #dca1a1; font-weight: bold; }
         
+        /* Checkbox styling container */
         .checkbox-container { width: 85%; max-width: 435px; margin: 5px auto 15px auto; text-align: left; font-size: 0.95em; color: #555; }
 
-        #wall-container { margin-top: 40px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: center; }
+        /* Auto-Rotating Gallery Slideshow Styling with slightly rounded edges */
+        #wall-container { margin-top: 40px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: center; background: transparent; }
         .gallery-carousel { position: relative; width: 100%; min-height: 200px; margin: 0 auto; }
         .wall-card { 
             background: #f7e6ca; 
             border: none; 
             padding: 20px; 
-            border-radius: 0px; 
+            border-radius: 12px; 
             box-sizing: border-box;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
             display: none;
@@ -68,6 +71,7 @@
         .wall-card.active { display: block; }
         .wall-card h4 { margin: 0 0 5px 0; color: #333; font-size: 1.1em; }
         
+        /* Message text styled with 'Oooh Baby' font */
         .wall-card p { 
             margin: 5px 0; 
             color: #444; 
@@ -76,6 +80,7 @@
             word-break: break-word; 
         }
 
+        /* UIPageControl-style Dot Indicators */
         .page-control-dots {
             display: flex;
             justify-content: center;
@@ -111,8 +116,9 @@
         <p id="welcomeMsg" style="font-size: 1.3em; color: #333;"></p>
         <p>Current Status: <strong id="currentStatus"></strong></p>
 
+        <!-- Download Invitation Button Container -->
         <div id="download-container" class="hidden">
-            <a id="downloadBtn" href="https://github.com/user-attachments/files/32715309/wedding_invitation.pdf" class="btn download-btn" download="PamGen_Wedding_Invitation.pdf" target="_blank">Download Invitation (.pdf).</a>
+            <a id="downloadBtn" href="https://github.com/user-attachments/files/32715309/wedding_invitation.pdf" class="btn download-btn" download="PamGen_Wedding_Invitation.pdf" target="_blank">Download Your Invitation (.pdf)</a>
         </div>
         
         <div id="rsvp-actions">
@@ -153,6 +159,7 @@
         <div class="gallery-carousel">
             <div id="messagesList">Loading messages...</div>
         </div>
+        <!-- UIPageControl Dot Indicators Container -->
         <div id="pageControl" class="page-control-dots"></div>
     </div>
 
@@ -199,7 +206,7 @@
                         const matches = msgText.match(gifRegex);
                         if (matches) {
                             matches.forEach(url => {
-                                messageContent += `<img src="${url}" alt="GIF" style="max-width: 100%; border-radius: 0px; margin-top: 8px; display: block; margin-left: auto; margin-right: auto;">`;
+                                messageContent += `<img src="${url}" alt="GIF" style="max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; margin-left: auto; margin-right: auto;">`;
                             });
                         }
                     } else if (msgText.trim() !== "") {
@@ -329,6 +336,7 @@
                     document.getElementById('welcomeMsg').innerText = `Hello, ${name}!`;
                     document.getElementById('currentStatus').innerText = data.status;
                     
+                    // Show the download button once logged in successfully
                     document.getElementById('download-container').classList.remove('hidden');
 
                     document.getElementById('status-box').className = "";
