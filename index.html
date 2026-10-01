@@ -1,21 +1,41 @@
-<!-- Below is the html code for www.pamgen.com/rsvp-->
-<!-- Created by Genesis de jesus 9/28/2026-->
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wishes & Messages Wall</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oooh+Baby&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Oooh+Baby&display=swap" rel="stylesheet">
     <style>
-        /* Standalone Message Cards Styling */
-        body { font-family: sans-serif; background-color: transparent; margin: 0; padding: 20px; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: transparent; }
+        h2 { font-family: 'Times New Roman', font-size: 48px; color: #000000; margin-bottom: 20px; }
         
-        #wall-container { max-width: 500px; margin: 0 auto; text-align: center; }
-        #wall-container h3 { font-family: 'Times New Roman', serif; font-size: 28px; color: #000000; margin-bottom: 15px; }
+        /* Rounded smooth shape matching reference style while retaining background & colors */
+        .input-field { width: 85%; max-width: 400px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; outline: none; margin: 10px auto; display: block; background: #ffffff; }
+        .input-field:focus { border-color: #818362; }
+        .hidden { display: none; }
         
+        .btn { padding: 12px 25px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; transition: opacity 0.3s; text-decoration: none; display: inline-block; box-sizing: border-box; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* Search Button: Rounded shape, matching #8a9a5b color and dimensions */
+        .search-btn { background-color: #8a9a5b; color: white; border: 2px solid #8a9a5b; border-radius: 12px; width: 85%; max-width: 435px; }
+        .search-btn:hover { opacity: 0.9; }
+
+        .yes { background-color: #818362; color: white; }
+        .no { background-color: #dca1a1; color: white; }
+        
+        /* Download Button Styling updated to #dca1a1 */
+        .download-btn { background-color: #dca1a1; color: white; width: 85%; max-width: 435px; margin-top: 15px; }
+        .download-btn:hover { opacity: 0.9; }
+
+        #status-box { margin-top: 20px; padding: 25px; border: 1px solid #eee; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; margin-left: auto; margin-right: auto;}
+        select { padding: 12px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; background: #ffffff; }
+        #validation-msg { color: #dca1a1; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; }
+        #feedback { margin-top: 15px; font-style: italic; color: #dca1a1; font-weight: bold; }
+        
+        /* Checkbox styling container */
+        .checkbox-container { width: 85%; max-width: 435px; margin: 5px auto 15px auto; text-align: left; font-size: 0.95em; color: #555; }
+
+        /* Auto-Rotating Gallery Slideshow Styling */
+        #wall-container { margin-top: 40px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: center; }
         .gallery-carousel { position: relative; width: 100%; min-height: 200px; margin: 0 auto; }
         .wall-card { 
             background: #f7e6ca; 
@@ -31,7 +51,7 @@
         .wall-card.active { display: block; }
         .wall-card h4 { margin: 0 0 5px 0; color: #333; font-size: 1.1em; }
         
-        /* Message text set to 'Oooh Baby' font */
+        /* Message text set to 'Oooh Baby' font while retaining size */
         .wall-card p { 
             margin: 5px 0; 
             color: #444; 
@@ -39,6 +59,8 @@
             font-family: 'Oooh Baby', cursive; 
             word-break: break-word; 
         }
+        
+        .wall-card .meta { font-size: 0.8em; color: #666; text-align: right; font-family: sans-serif; }
 
         /* UIPageControl-style Dot Indicators */
         .page-control-dots {
@@ -67,9 +89,55 @@
     </style>
 </head>
 <body>
+    <h2><!FIND YOUR INVITATION HERE></h2>
+    <input type="text" id="nameInput" class="input-field" placeholder="Full Name">
+    <input type="text" id="accessCode" class="input-field" placeholder="4-Digit Access Code">
+    <button onclick="searchName()" class="btn search-btn">Search Invitation</button>
+
+    <div id="status-box" class="hidden">
+        <p id="welcomeMsg" style="font-size: 1.3em; color: #333;"></p>
+        <p>Current Status: <strong id="currentStatus"></strong></p>
+
+        <!-- Download Invitation Button Container -->
+        <div id="download-container" class="hidden">
+            <a id="downloadBtn" href="https://github.com/user-attachments/files/32715309/wedding_invitation.pdf" class="btn download-btn" download="PamGen_Wedding_Invitation.pdf" target="_blank">Download Your Invitation (.pdf)</a>
+        </div>
+        
+        <div id="rsvp-actions">
+            <hr style="border:0; border-top: 1px solid #eee; margin: 20px 0;">
+            <div id="companion-area" class="hidden">
+                <p>Will you be bringing any companions?</p>
+                <select id="companionCount" onchange="toggleCompanionNames()"></select>
+                <div id="names-input-area" class="hidden">
+                    <p>Please list their names (separated by commas):</p>
+                    <textarea id="compNamesInput" class="input-field" oninput="validateNames()" placeholder="e.g. Gen de Jesus, Pam dela Cruz" rows="3"></textarea>
+                    <p id="validation-msg"></p>
+                </div>
+            </div>
+
+            <p>Leave a message or wish for the couple:</p>
+            <textarea id="guestMessageInput" class="input-field" placeholder="Write your message here" rows="3"></textarea>
+            <div class="checkbox-container">
+                <label style="cursor: pointer;">
+                    <input type="checkbox" id="anonymousCheck"> Post message anonymously
+                </label>
+            </div>
+
+            <p>Please confirm your attendance:</p>
+            <button id="submitYes" onclick="updateRSVP('Attending')" class="btn yes">I'm Attending</button>
+            <button onclick="updateRSVP('Not Attending')" class="btn no">I Can't Make It</button>
+        </div>
+
+        <div id="locked-msg" class="hidden">
+            <hr style="border:0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p id="confirmationText" style="font-weight: bold; font-size: 1.1em;"></p>
+            <div id="userMessageDisplay" style="margin-top: 10px; font-style: italic; color: #555;"></div>
+        </div>
+    </div>
+    <p id="feedback"></p>
 
     <div id="wall-container">
-        <h3>Wishes & Messages</h3>
+        <h3 style="text-align: center; font-family: 'Times New Roman', serif; font-size: 28px;"><!Wishes & Messages></h3>
         <div class="gallery-carousel">
             <div id="messagesList">Loading messages...</div>
         </div>
@@ -96,7 +164,7 @@
                 const messages = await response.json();
                 
                 if (messages.length === 0) {
-                    listEl.innerHTML = "<p style='text-align: center; color: #888; font-family: sans-serif; font-size: 1em;'>No messages yet. Be the first to leave a wish!</p>";
+                    listEl.innerHTML = "<p style='text-align: center; color: #888;'>No messages yet. Be the first to leave a wish!</p>";
                     pageControlEl.innerHTML = "";
                     return;
                 }
@@ -132,6 +200,7 @@
                         <div class="wall-card ${activeClass}" data-index="${index}">
                             <h4>${item.name}</h4>
                             ${messageContent}
+                            <div class="meta">${item.timestamp}</div>
                         </div>
                     `;
 
@@ -147,7 +216,7 @@
                     startAutoRotate();
                 }
             } catch (e) {
-                listEl.innerHTML = "<p style='text-align: center; color: #dca1a1; font-family: sans-serif; font-size: 1em;'>Unable to load messages.</p>";
+                listEl.innerHTML = "<p style='text-align: center; color: #dca1a1;'>Unable to load messages.</p>";
                 pageControlEl.innerHTML = "";
             }
         }
@@ -178,6 +247,145 @@
                 currentIndex = (currentIndex + 1) % totalMessages;
                 updateGalleryDisplay();
             }, 3000);
+        }
+
+        function setConfirmationMessage(status, message, isAnon) {
+            const textElement = document.getElementById('confirmationText');
+            const statusLower = String(status).toLowerCase();
+            if (statusLower.includes("attending") && !statusLower.includes("not")) {
+                textElement.innerHTML = 'Your RSVP is confirmed. Visit our <a href="https://www.pamgen2026.com" style="color: #818362; text-decoration: underline;">website</a> for details!';
+                textElement.style.color = "#818362";
+            } else {
+                textElement.innerText = "Your RSVP is confirmed. We're sorry you can't make it!";
+                textElement.style.color = "#dca1a1";
+            }
+            
+            if (message) {
+                const authorDisplay = isAnon ? "Anonymous" : "You";
+                document.getElementById('userMessageDisplay').innerText = `Your message (${authorDisplay}): "${message}"`;
+            }
+            document.getElementById('locked-msg').classList.remove('hidden');
+        }
+
+        function validateNames() {
+            const countRequired = parseInt(document.getElementById('companionCount').value);
+            const text = document.getElementById('compNamesInput').value.trim();
+            const submitBtn = document.getElementById('submitYes');
+            const msg = document.getElementById('validation-msg');
+            if (countRequired === 0 || isNaN(countRequired)) { submitBtn.disabled = false; msg.innerText = ""; return; }
+            const namesArray = text.split(',').filter(name => name.trim().length > 0);
+            if (namesArray.length !== countRequired) {
+                submitBtn.disabled = true;
+                msg.innerText = `Please enter exactly ${countRequired} name(s).`;
+                msg.style.color = "#dca1a1";
+            } else {
+                submitBtn.disabled = false;
+                msg.innerText = "✓ Names confirmed.";
+                msg.style.color = "#818362";
+            }
+        }
+
+        function toggleCompanionNames() {
+            const count = document.getElementById('companionCount').value;
+            document.getElementById('names-input-area').className = (count > 0) ? "" : "hidden";
+            validateNames();
+        }
+
+        async function searchName() {
+            const name = document.getElementById('nameInput').value.trim();
+            const code = document.getElementById('accessCode').value.trim();
+            const feedbackEl = document.getElementById('feedback');
+
+            if (!name || !code) {
+                feedbackEl.style.color = "#dca1a1";
+                feedbackEl.innerText = "Please enter both your full name and access code.";
+                return;
+            }
+
+            feedbackEl.style.color = "#333";
+            feedbackEl.innerText = "Verifying...";
+            
+            try {
+                const response = await fetch(`${SCRIPT_URL}?name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`);
+                const text = await response.text();
+                
+                if (text === "Invalid Code" || text === "Not Found") {
+                    feedbackEl.style.color = "#dca1a1";
+                    feedbackEl.innerText = text === "Invalid Code" ? "Incorrect access code. Please try again or contact Pam/Gen" : "Name not found on the guest list.";
+                    document.getElementById('status-box').className = "hidden";
+                } else {
+                    const data = JSON.parse(text);
+                    feedbackEl.innerText = "";
+                    document.getElementById('welcomeMsg').innerText = `Hello, ${name}!`;
+                    document.getElementById('currentStatus').innerText = data.status;
+                    
+                    // Show the download button once logged in successfully
+                    document.getElementById('download-container').classList.remove('hidden');
+
+                    document.getElementById('status-box').className = "";
+                    if (data.status !== "Pending") {
+                        document.getElementById('rsvp-actions').className = "hidden";
+                        setConfirmationMessage(data.status, data.message, false);
+                    } else {
+                        document.getElementById('rsvp-actions').className = "";
+                        document.getElementById('locked-msg').className = "hidden";
+                        document.getElementById('guestMessageInput').value = ""; 
+                        document.getElementById('anonymousCheck').checked = false;
+                        const select = document.getElementById('companionCount');
+                        select.innerHTML = "";
+                        for (let i = 0; i <= data.max; i++) {
+                            let opt = document.createElement('option');
+                            opt.value = i; opt.innerHTML = i === 0 ? "Just me" : `Me + ${i} companion(s)`;
+                            select.appendChild(opt);
+                        }
+                        document.getElementById('companion-area').className = (data.max > 0) ? "" : "hidden";
+                        validateNames();
+                    }
+                }
+            } catch (e) { 
+                feedbackEl.style.color = "#dca1a1";
+                feedbackEl.innerText = "Error connecting to the server."; 
+            }
+        }
+
+        async function updateRSVP(newStatus) {
+            const name = document.getElementById('nameInput').value;
+            const companions = document.getElementById('companionCount').value || 0;
+            const companionNames = document.getElementById('compNamesInput').value || "";
+            const message = document.getElementById('guestMessageInput').value.trim();
+            const isAnonymous = document.getElementById('anonymousCheck').checked;
+            const feedbackEl = document.getElementById('feedback');
+
+            feedbackEl.style.color = "#333";
+            feedbackEl.innerText = "Saving...";
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        name: name, 
+                        status: newStatus, 
+                        companions: companions, 
+                        companionNames: companionNames, 
+                        message: message,
+                        isAnonymous: isAnonymous
+                    })
+                });
+                if (await response.text() === "Success") {
+                    const displayStatus = companions > 0 ? `${newStatus} (+${companions})` : newStatus;
+                    document.getElementById('currentStatus').innerText = displayStatus;
+                    document.getElementById('rsvp-actions').className = "hidden";
+                    setConfirmationMessage(displayStatus, message, isAnonymous);
+                    feedbackEl.innerText = "";
+                    loadPublicMessages(); 
+                } else {
+                    feedbackEl.style.color = "#dca1a1";
+                    feedbackEl.innerText = "Failed to update RSVP.";
+                }
+            } catch (e) { 
+                feedbackEl.style.color = "#dca1a1";
+                feedbackEl.innerText = "Failed to save."; 
+            }
         }
     </script>
 </body>
