@@ -8,7 +8,7 @@
         h2 { font-family: 'Times New Roman', font-size: 48px; color: #000000; margin-bottom: 20px; }
         
         /* Rounded smooth shape matching reference style while retaining background & colors */
-        .input-field { width: 85%; max-width: 400px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; outline: none; margin: 10px auto; display: block; background: #ffffff; }
+        .input-field { width: 85%; max-width: 400px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; outline: none; margin: 10px auto; display: block; background: #ffffff; box-sizing: border-box; }
         .input-field:focus { border-color: #818362; }
         .hidden { display: none; }
         
@@ -31,7 +31,7 @@
         .download-btn:active { background-color: #c48b8b; transform: translateY(2px); }
 
         #status-box { margin-top: 20px; padding: 25px; border: 1px solid #eee; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; margin-left: auto; margin-right: auto;}
-        select { padding: 12px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; background: #ffffff; }
+        select { padding: 12px; border-radius: 12px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; background: #ffffff; box-sizing: border-box; }
         #validation-msg { color: #dca1a1; font-size: 0.9em; margin-bottom: 10px; font-weight: bold; }
         #feedback { margin-top: 15px; font-style: italic; color: #dca1a1; font-weight: bold; }
         
@@ -41,11 +41,13 @@
         /* Auto-Rotating Gallery Slideshow Styling */
         #wall-container { margin-top: 40px; max-width: 500px; margin-left: auto; margin-right: auto; text-align: center; }
         .gallery-carousel { position: relative; width: 100%; min-height: 200px; margin: 0 auto; }
+        
+        /* Updated wall-card with 12px border-radius to match inputs/buttons */
         .wall-card { 
             background: #f7e6ca; 
             border: none; 
             padding: 20px; 
-            border-radius: 0px; 
+            border-radius: 12px; 
             box-sizing: border-box;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
             display: none;
@@ -190,7 +192,7 @@
                         const matches = msgText.match(gifRegex);
                         if (matches) {
                             matches.forEach(url => {
-                                messageContent += `<img src="${url}" alt="GIF" style="max-width: 100%; border-radius: 0px; margin-top: 8px; display: block; margin-left: auto; margin-right: auto;">`;
+                                messageContent += `<img src="${url}" alt="GIF" style="max-width: 100%; border-radius: 8px; margin-top: 8px; display: block; margin-left: auto; margin-right: auto;">`;
                             });
                         }
                     } else if (msgText.trim() !== "") {
@@ -332,7 +334,7 @@
                         setConfirmationMessage(data.status, data.message, false);
                     } else {
                         document.getElementById('rsvp-actions').className = "";
-                        document.getElementById('locked-msg').className = "hidden";
+                        document.getElementById('locked-msg').classList.add('hidden');
                         document.getElementById('guestMessageInput').value = ""; 
                         document.getElementById('anonymousCheck').checked = false;
                         const select = document.getElementById('companionCount');
