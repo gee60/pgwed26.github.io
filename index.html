@@ -12,19 +12,23 @@
         .input-field:focus { border-color: #818362; }
         .hidden { display: none; }
         
-        .btn { padding: 12px 25px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; transition: opacity 0.3s; text-decoration: none; display: inline-block; box-sizing: border-box; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn { padding: 12px 25px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; transition: background-color 0.2s, transform 0.1s; text-decoration: none; display: inline-block; box-sizing: border-box; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
         
         /* Search Button: Rounded shape, matching #8a9a5b color and dimensions */
         .search-btn { background-color: #8a9a5b; color: white; border: 2px solid #8a9a5b; border-radius: 12px; width: 85%; max-width: 435px; }
         .search-btn:hover { opacity: 0.9; }
+        .search-btn:active { transform: translateY(2px); }
 
         .yes { background-color: #818362; color: white; }
+        .yes:active { transform: translateY(2px); }
         .no { background-color: #dca1a1; color: white; }
+        .no:active { transform: translateY(2px); }
         
-        /* Download Button Styling updated to #dca1a1 */
+        /* Download Button Styling: #dca1a1 with a sinking press effect */
         .download-btn { background-color: #dca1a1; color: white; width: 85%; max-width: 435px; margin-top: 15px; }
-        .download-btn:hover { opacity: 0.9; }
+        .download-btn:hover { background-color: #d79696; }
+        .download-btn:active { background-color: #c48b8b; transform: translateY(2px); }
 
         #status-box { margin-top: 20px; padding: 25px; border: 1px solid #eee; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 450px; margin-left: auto; margin-right: auto;}
         select { padding: 12px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 435px; font-size: 16px; margin-bottom: 10px; background: #ffffff; }
@@ -96,9 +100,9 @@
         <p id="welcomeMsg" style="font-size: 1.3em; color: #333;"></p>
         <p>Current Status: <strong id="currentStatus"></strong></p>
 
-        <!-- Download Invitation Button Container -->
+        <!-- Download Invitation Button Container (Hidden by default) -->
         <div id="download-container" class="hidden">
-            <a id="downloadBtn" href="https://github.com/user-attachments/files/32715309/wedding_invitation.pdf" class="btn download-btn" download="PamGen_Wedding_Invitation.pdf" target="_blank">Download Your Invitation (.pdf)</a>
+            <a id="downloadBtn" href="https://github.com/user-attachments/files/32880800/pamgen_wedding_invitation.pdf" class="btn download-btn" download="PamGen_Wedding_Invitation.pdf" target="_blank">Download Your Invitation (.pdf)</a>
         </div>
         
         <div id="rsvp-actions">
@@ -249,12 +253,16 @@
         function setConfirmationMessage(status, message, isAnon) {
             const textElement = document.getElementById('confirmationText');
             const statusLower = String(status).toLowerCase();
+            const downloadContainer = document.getElementById('download-container');
+
             if (statusLower.includes("attending") && !statusLower.includes("not")) {
                 textElement.innerHTML = 'Your RSVP is confirmed. Visit our <a href="https://www.pamgen2026.com" style="color: #818362; text-decoration: underline;">website</a> for details!';
                 textElement.style.color = "#818362";
+                downloadContainer.classList.remove('hidden');
             } else {
                 textElement.innerText = "Your RSVP is confirmed. We're sorry you can't make it!";
                 textElement.style.color = "#dca1a1";
+                downloadContainer.classList.add('hidden');
             }
             
             if (message) {
@@ -316,8 +324,7 @@
                     document.getElementById('welcomeMsg').innerText = `Hello, ${name}!`;
                     document.getElementById('currentStatus').innerText = data.status;
                     
-                    // Show the download button once logged in successfully
-                    document.getElementById('download-container').classList.remove('hidden');
+                    document.getElementById('download-container').classList.add('hidden');
 
                     document.getElementById('status-box').className = "";
                     if (data.status !== "Pending") {
