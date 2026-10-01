@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Wishes & Messages Wall</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oooh+Baby&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Playfair Display', serif;
+            background: transparent;
+            margin: 0;
+            padding: 20px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        #wall-container {
+            width: 100%;
+            max-width: 380px;
+            background: transparent;
+            padding: 20px 20px 25px 20px;
+            border-radius: 16px;
+            box-shadow: none;
+            border: none;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .gallery-carousel {
+            position: relative;
+            width: 100%;
+            min-height: 140px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .wall-card { 
+            background: #f7e6ca; 
+            border: none; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04); 
+            display: none;
+            text-align: left;
+            animation: fadeIn 0.6s ease-in-out;
+            border-left: 4px solid #8a9a5b;
+        }
+        
+        .wall-card.active { 
+            display: block; 
+        }
+
+        .wall-card h4 { 
+            margin: 0 0 6px 0; 
+            color: #2c3522; 
+            font-size: 1.05em; 
+            font-weight: 600;
+        }
+        
+        .wall-card p { 
+            margin: 4px 0 0 0; 
+            color: #444; 
+            font-size: 1.25em; 
+            font-family: 'Oooh Baby', cursive; 
+            word-break: break-word; 
+            line-height: 1.2;
+        }
+
+        .loading-text, .error-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: #777;
+            padding: 20px;
+            font-size: 0.95em;
+        }
+
+        .error-text {
+            color: #dca1a1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="wall-container">
+        <div class="gallery-carousel">
+            <div id="messagesList" class="loading-text">Messages for the couple...</div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKqLhcL4m7xxhinbs9udTAEnoq_X435MoZ6li92mBMq4n4MPbgdcfRNLKv4DNZ2amt/exec";
+        
+        let currentIndex = 0;
+        let totalMessages = 0;
+        let autoRotateInterval = null;
+
+        window.onload = function() {
+            loadPublicMessages();
+        };
+
+        async function loadPublicMessages() {
+            const listEl = document.getElementById('messagesList');
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const messages = await response.json();
+                
+                if (!messages || messages.length === 0) {
+                    listEl.innerHTML = "<p style='text-align: center; color: #888; font-family: Playfair Display, serif; font-size: 0.9em;'>No messages yet. Be the first to leave a wish!</p>";
+                    return;
+                }
+
+                messages.reverse();
+                totalMessages = messages.length;
+
+                let html = "";
+
+                messages.forEach((item, index) => {
+                    let messageContent = "";
+                    const msgText = item.message || "";
+                    const gifRegex = /(https?:\/\/[^\s]+\.gif(\?[^\s]*)?)/gi;
+
+                    if (gifRegex.test(msgText)) {
+                        let textOnly = msgText.replace(gifRegex, '').trim();
+                        if (textOnly) {
+                            messageContent += `<p>"${textOnly}"</p>`;
+                        }
+                        const matches = msgText.match(gifRegex);
+                        if (matches) {
+                            matches.forEach(url => {
+                                messageContent += `<img src="${url}" alt="GIF" style="max-width: 100%; border-radius: 4px; margin-top: 6px; display: block; margin-left: auto; margin-right: auto;">`;
+                            });
+                        }
+                    } else if (msgText.trim() !== "") {
+                        messageContent += `<p>"${msgText}"</p>`;
+                    } else {
+                        messageContent += `<p style="font-style: italic; font-size: 0.95em; color: #666;">(No message provided)</p>`;
+                    }
+
+                    const activeClass = index === 0 ? "active" : "";
+                    html += `
+                        <div class="wall-card ${activeClass}" data-index="${index}">
+                            <h4>${item.name || 'Anonymous Guest'}</h4>
+                            ${messageContent}
+                        </div>
+                    `;
+                });
+                
+                listEl.innerHTML = html;
+                currentIndex = 0;
+                updateGalleryDisplay();
+                
+                if (totalMessages > 1) {
+                    startAutoRotate();
+                }
+            } catch (e) {
+                listEl.innerHTML = "<p class='error-text'>Unable to load messages at the moment.</p>";
+            }
+        }
+
+        function updateGalleryDisplay() {
+            const cards = document.querySelectorAll('.wall-card');
+            cards.forEach((card, index) => {
+                if (index === currentIndex) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        function startAutoRotate() {
+            if (autoRotateInterval) clearInterval(autoRotateInterval);
+            autoRotateInterval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % totalMessages;
+                updateGalleryDisplay();
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
