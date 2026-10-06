@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Timeline Showcase</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter fallback, primary font Times New Roman -->
+    <style>
+        * {
+            font-family: "Times New Roman", Times, serif !important;
+        }
+        /* Custom scrollbar and animations */
+        ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f7f9f4;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8a9a5b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6e7a48;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        /* Custom color classes matching Sage Green (#8a9a5b) and Muted Rose (#dca1a1) */
+        .bg-sage-600 { background-color: #8a9a5b; }
+        .bg-sage-700 { background-color: #6e7a48; }
+        .bg-sage-50 { background-color: #f3f5ee; }
+        .bg-rose-500 { background-color: #dca1a1; }
+        .bg-rose-600 { background-color: #c48b8b; }
+        .bg-rose-50 { background-color: #fbf4f4; }
+        
+        .text-sage-600 { color: #8a9a5b; }
+        .text-sage-700 { color: #6e7a48; }
+        .text-rose-600 { color: #c48b8b; }
+        
+        .border-sage-200 { border-color: #d9e0cd; }
+        .border-sage-300 { border-color: #b5c49e; }
+        .border-rose-200 { border-color: #f0d4d4; }
+        
+        .hover\:bg-sage-700:hover { background-color: #6e7a48; }
+        .hover\:bg-rose-600:hover { background-color: #c48b8b; }
+        .focus\:ring-sage-500:focus { --tw-ring-color: #8a9a5b; }
+        .focus\:border-sage-500:focus { border-color: #8a9a5b; }
+    </style>
+</head>
+<body class="bg-[#f7f9f4] text-slate-800 antialiased selection:bg-[#8a9a5b] selection:text-white min-h-screen flex flex-col justify-between">
+
+    <header class="sticky top-0 z-40 bg-[#f7f9f4]/90 backdrop-blur-md border-b border-[#d9e0cd]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-end">
+            <button onclick="openAddModal()" class="inline-flex items-center space-x-2 bg-[#8a9a5b] hover:bg-[#6e7a48] text-white text-base font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all transform active:scale-95">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Event</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        <!-- Controls: Style Switcher & Category Filter -->
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-[#d9e0cd] mb-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            
+            <!-- Style Selector Tabs -->
+            <div class="flex flex-wrap items-center gap-2 bg-[#f3f5ee] p-1.5 rounded-xl">
+                <button onclick="switchStyle('vertical')" id="btn-style-vertical" class="style-tab px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-[#8a9a5b] text-white shadow-sm">
+                    <i class="fa-solid fa-bars-staggered mr-2"></i>Vertical Modern
+                </button>
+                <button onclick="switchStyle('horizontal')" id="btn-style-horizontal" class="style-tab px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-700 hover:text-slate-900">
+                    <i class="fa-solid fa-arrows-left-right mr-2"></i>Horizontal Scroll
+                </button>
+                <button onclick="switchStyle('minimal')" id="btn-style-minimal" class="style-tab px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-700 hover:text-slate-900">
+                    <i class="fa-solid fa-square-full mr-2"></i>Minimalist Cards
+                </button>
+            </div>
+
+            <!-- Category Filters -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-semibold uppercase text-slate-500 mr-1 hidden sm:inline">Filter:</span>
+                <button onclick="filterCategory('all')" id="cat-all" class="cat-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#8a9a5b] text-white transition-all">All</button>
+                <button onclick="filterCategory('tech')" id="cat-tech" class="cat-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#f3f5ee] text-slate-700 hover:bg-[#d9e0cd] transition-all">Technology</button>
+                <button onclick="filterCategory('company')" id="cat-company" class="cat-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#f3f5ee] text-slate-700 hover:bg-[#d9e0cd] transition-all">Company</button>
+                <button onclick="filterCategory('design')" id="cat-design" class="cat-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#f3f5ee] text-slate-700 hover:bg-[#d9e0cd] transition-all">Design</button>
+            </div>
+        </div>
+
+        <div id="timeline-container" class="relative">
+            <!-- Timeline views will be injected here via JavaScript -->
+        </div>
+
+    </main>
+
+    <div id="event-drawer" class="fixed inset-0 z-50 overflow-hidden hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeDrawer()"></div>
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md transform transition-transform ease-in-out duration-300 bg-white shadow-2xl flex flex-col">
+                <div class="p-6 bg-[#8a9a5b] text-white flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span id="drawer-category" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#dca1a1] text-white uppercase tracking-wide">Category</span>
+                        <span id="drawer-date" class="text-white/80 text-xs">Date</span>
+                    </div>
+                    <button onclick="closeDrawer()" class="text-white/80 hover:text-white p-2 rounded-lg transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div>
+                        <h3 id="drawer-title" class="text-2xl font-bold text-slate-900 mb-2">Event Title</h3>
+                        <p id="drawer-subtitle" class="text-sm font-semibold text-[#8a9a5b]">Event Subtitle / Milestone</p>
+                    </div>
+                    <div id="drawer-image-container" class="rounded-2xl overflow-hidden shadow-md hidden">
+                        <img id="drawer-image" src="" alt="Event illustration" class="w-full h-48 object-cover">
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Description</h4>
+                        <p id="drawer-desc" class="text-slate-600 text-base leading-relaxed">Detailed description goes here...</p>
+                    </div>
+                    <div id="drawer-extra-section" class="bg-[#f3f5ee] rounded-xl p-4 border border-[#d9e0cd]">
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-[#8a9a5b] mb-1"><i class="fa-solid fa-circle-info mr-1"></i> Additional Info</h4>
+                        <p id="drawer-extra" class="text-sm text-slate-600">Impact metrics, version releases, or key stakeholders involved in this timeline milestone.</p>
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-50 border-t border-[#d9e0cd] flex justify-end">
+                    <button onclick="closeDrawer()" class="px-5 py-2.5 bg-[#8a9a5b] hover:bg-[#6e7a48] text-white rounded-xl text-sm font-semibold transition-colors">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-modal" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeAddModal()"></div>
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full relative z-10 overflow-hidden animate-fade-in border border-[#d9e0cd]">
+            <div class="px-6 py-4 bg-[#8a9a5b] text-white flex items-center justify-between">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-circle-plus text-[#dca1a1] mr-2"></i> Add New Timeline Event</h3>
+                <button onclick="closeAddModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="add-event-form" onsubmit="handleAddNewEvent(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Event Title *</label>
+                    <input type="text" id="newEventTitle" required class="w-full px-3.5 py-2.5 rounded-xl border border-[#d9e0cd] focus:ring-2 focus:ring-[#8a9a5b] focus:border-[#8a9a5b] text-base outline-none transition-all" placeholder="e.g. Series B Funding">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Date / Year *</label>
+                        <input type="text" id="newEventDate" required class="w-full px-3.5 py-2.5 rounded-xl border border-[#d9e0cd] focus:ring-2 focus:ring-[#8a9a5b] focus:border-[#8a9a5b] text-base outline-none transition-all" placeholder="e.g. Oct 2026">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Category *</label>
+                        <select id="newEventCategory" class="w-full px-3.5 py-2.5 rounded-xl border border-[#d9e0cd] focus:ring-2 focus:ring-[#8a9a5b] focus:border-[#8a9a5b] text-base outline-none bg-white transition-all">
+                            <option value="tech">Technology</option>
+                            <option value="company">Company</option>
+                            <option value="design">Design</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Subtitle / Tagline</label>
+                    <input type="text" id="newEventSubtitle" class="w-full px-3.5 py-2.5 rounded-xl border border-[#d9e0cd] focus:ring-2 focus:ring-[#8a9a5b] focus:border-[#8a9a5b] text-base outline-none transition-all" placeholder="e.g. Raised $15M led by Horizon Ventures">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Image URL (Optional)</label>
+                    <input type="url" id="newEventImage" class="w-full px-3.5 py-2.5 rounded-xl border border-[#d9e0cd] focus:ring-2 focus:ring-[#8a9a5b] focus:border-[#8a9a5b] text-base outline-none transition-all" placeholder="https://images.unsplash.com/...">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Description *</label>
+                    <textarea id="newEventDesc" required rows="3" class="w-full px-3.5 py-2.5 rounded-xl border border-[#d9e0cd] focus:ring-2 focus:ring-[#8a9a5b] focus:border-[#8a9a5b] text-base outline-none transition-all" placeholder="Describe the milestone in detail..."></textarea>
+                </div>
+                <div class="pt-2 flex items-center justify-end space-x-3">
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2.5 rounded-xl border border-[#d9e0cd] text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#8a9a5b] hover:bg-[#6e7a48] text-white rounded-xl text-sm font-semibold shadow-sm transition-all">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-[#d9e0cd] mt-16 py-6 text-center text-sm text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>&copy; 2026 Chronos Interactive Timelines. All rights reserved.</p>
+            <div class="flex items-center space-x-4">
+                <span class="hover:text-[#8a9a5b] transition-colors cursor-pointer">Privacy</span>
+                <span class="hover:text-[#8a9a5b] transition-colors cursor-pointer">Terms</span>
+                <span class="hover:text-[#8a9a5b] transition-colors cursor-pointer">Support</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let timelineEvents = [
+            {
+                id: 1,
+                title: "Company Inception",
+                subtitle: "Founded in a small garage in Silicon Valley",
+                date: "Jan 2021",
+                category: "company",
+                description: "Three co-founders came together with a bold vision to disrupt asynchronous collaboration and remote workflows through intuitive design and high-performance engineering.",
+                image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80",
+                extra: "Initial seed funding of $500K secured from angel investors."
+            },
+            {
+                id: 2,
+                title: "v1.0 Public Launch",
+                subtitle: "Released on Product Hunt & Hacker News",
+                date: "Aug 2021",
+                category: "tech",
+                description: "After 8 months of intense beta testing, we launched our core engine to the public. Reached #1 Product of the Day with over 4,500 upvotes.",
+                image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
+                extra: "Over 10,000 active sign-ups within the first 48 hours."
+            },
+            {
+                id: 3,
+                title: "Complete Design System Overhaul",
+                subtitle: "Transitioned to modular Tailwind architecture",
+                date: "Mar 2022",
+                category: "design",
+                description: "Overhauled our entire UI/UX suite to incorporate accessible contrast ratios, fluid typography, and lightning-fast CSS compilation, boosting user engagement by 40%.",
+                image: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80",
+                extra: "Design team expanded from 2 to 6 senior product designers."
+            },
+            {
+                id: 4,
+                title: "Series A Funding Round",
+                subtitle: "Secured $12M led by Apex Ventures",
+                date: "Nov 2023",
+                category: "company",
+                description: "This capital injection allowed us to scale our engineering, customer success, and infrastructure teams globally while establishing our first European hub.",
+                image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=800&q=80",
+                extra: "Valuation crossed $50M post-money."
+            },
+            {
+                id: 5,
+                title: "AI-Powered Automation Suite",
+                subtitle: "Integrated intelligent real-time timeline forecasting",
+                date: "Jun 2025",
+                category: "tech",
+                description: "Launched cutting-edge generative features enabling users to automatically synthesize roadmaps and milestone reports using proprietary machine learning models.",
+                image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+                extra: "Adopted by over 250 Fortune 500 enterprises."
+            }
+        ];
+
+        let currentStyle = 'vertical';
+        let currentCategory = 'all';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTimeline();
+        });
+
+        function switchStyle(style) {
+            currentStyle = style;
+            document.querySelectorAll('.style-tab').forEach(btn => {
+                btn.className = "style-tab px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-700 hover:text-slate-900";
+            });
+            const activeBtn = document.getElementById(`btn-style-${style}`);
+            if (activeBtn) {
+                activeBtn.className = "style-tab px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-[#8a9a5b] text-white shadow-sm";
+            }
+            renderTimeline();
+        }
+
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#f3f5ee] text-slate-700 hover:bg-[#d9e0cd] transition-all";
+            });
+            const activeCat = document.getElementById(`cat-${category}`);
+            if (activeCat) {
+                activeCat.className = "cat-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#8a9a5b] text-white transition-all";
+            }
+            renderTimeline();
+        }
+
+        function getFilteredEvents() {
+            if (currentCategory === 'all') return timelineEvents;
+            return timelineEvents.filter(e => e.category === currentCategory);
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            const events = getFilteredEvents();
+
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 bg-white rounded-3xl border border-[#d9e0cd] shadow-sm">
+                        <div class="w-16 h-16 bg-[#f3f5ee] rounded-full flex items-center justify-center mx-auto text-[#8a9a5b] mb-4 text-2xl">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800">No milestones found</h3>
+                        <p class="text-slate-500 text-sm mt-1">Try switching categories or add a custom event.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentStyle === 'vertical') {
+                renderVerticalStyle(container, events);
+            } else if (currentStyle === 'horizontal') {
+                renderHorizontalStyle(container, events);
+            } else if (currentStyle === 'minimal') {
+                renderMinimalStyle(container, events);
+            }
+        }
+
+        function renderVerticalStyle(container, events) {
+            let html = `<div class="relative wrap overflow-hidden py-4">`;
+            html += `<div class="absolute border-2 border-[#b5c49e] h-full left-1/2 transform -translate-x-1/2 hidden md:block"></div>`;
+
+            events.forEach((event, index) => {
+                const isEven = index % 2 === 0;
+                const alignmentClass = isEven ? 'md:flex-row-reverse' : '';
+                const badgeAlignment = isEven ? 'md:justify-end' : 'md:justify-start';
+
+                html += `
+                    <div class="mb-12 flex flex-col md:flex-row items-center w-full ${alignmentClass} group cursor-pointer animate-fade-in" onclick="openDrawer(${event.id})">
+                        <div class="w-full md:w-1/2 md:px-8">
+                            <div class="bg-white rounded-3xl p-6 shadow-sm border border-[#d9e0cd] hover:border-[#8a9a5b] hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-1">
+                                <div class="flex items-center justify-between mb-3 ${badgeAlignment} flex-wrap gap-2">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#fbf4f4] text-[#c48b8b] uppercase tracking-wide">${event.category}</span>
+                                    <span class="text-xs font-semibold text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${event.date}</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-900 mb-1 group-hover:text-[#8a9a5b] transition-colors">${event.title}</h3>
+                                <p class="text-xs font-semibold text-[#8a9a5b] mb-3">${event.subtitle}</p>
+                                ${event.image ? `<div class="rounded-xl overflow-hidden mb-3 h-36 bg-slate-100"><img src="${event.image}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=Timeline'"></div>` : ''}
+                                <p class="text-slate-600 text-base line-clamp-2">${event.description}</p>
+                                <div class="mt-4 flex items-center text-xs font-semibold text-[#8a9a5b] group-hover:underline">
+                                    <span>Read full details</span>
+                                    <i class="fa-solid fa-arrow-right ml-1 transform group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full bg-[#8a9a5b] border-4 border-[#f7f9f4] shadow-md flex items-center justify-center text-white text-xs hidden md:flex z-10">
+                            <i class="fa-solid fa-star text-xs"></i>
+                        </div>
+                        <div class="w-full md:w-1/2"></div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function renderHorizontalStyle(container, events) {
+            let html = `
+                <div class="relative py-6">
+                    <div class="flex items-center space-x-6 overflow-x-auto pb-6 pt-2 px-2 hide-scrollbar snap-x">
+            `;
+
+            events.forEach((event) => {
+                html += `
+                    <div class="flex-shrink-0 w-80 sm:w-96 snap-center bg-white rounded-3xl p-6 shadow-sm border border-[#d9e0cd] hover:border-[#8a9a5b] hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between animate-fade-in" onclick="openDrawer(${event.id})">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#fbf4f4] text-[#c48b8b] uppercase tracking-wide">${event.category}</span>
+                                <span class="text-xs font-bold text-slate-500 bg-[#f3f5ee] px-2.5 py-1 rounded-lg">${event.date}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-900 mb-1 group-hover:text-[#8a9a5b] transition-colors">${event.title}</h3>
+                            <p class="text-xs font-semibold text-[#8a9a5b] mb-3">${event.subtitle}</p>
+                            ${event.image ? `<div class="rounded-xl overflow-hidden mb-3 h-40 bg-slate-100"><img src="${event.image}" alt="${event.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=Timeline'"></div>` : ''}
+                            <p class="text-slate-600 text-base line-clamp-3">${event.description}</p>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-[#f3f5ee] flex items-center justify-between">
+                            <span class="text-xs font-semibold text-[#8a9a5b] group-hover:underline">Explore milestone</span>
+                            <div class="w-8 h-8 rounded-full bg-[#f3f5ee] text-[#8a9a5b] flex items-center justify-center group-hover:bg-[#8a9a5b] group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <div class="text-center mt-4 text-xs text-slate-400 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                        <span>Scroll horizontally to view more milestones</span>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function renderMinimalStyle(container, events) {
+            let html = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">`;
+
+            events.forEach((event) => {
+                html += `
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-[#d9e0cd] hover:border-[#8a9a5b] hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between" onclick="openDrawer(${event.id})">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#8a9a5b] text-white">${event.date}</span>
+                                <span class="text-xs font-semibold text-[#c48b8b] uppercase tracking-wide bg-[#fbf4f4] px-2.5 py-1 rounded">${event.category}</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-[#8a9a5b] transition-colors">${event.title}</h3>
+                            <p class="text-xs font-semibold text-[#8a9a5b] mb-3">${event.subtitle}</p>
+                            <p class="text-slate-600 text-base line-clamp-3">${event.description}</p>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between text-xs font-semibold text-slate-400 group-hover:text-[#8a9a5b] pt-3 border-t border-[#f3f5ee]">
+                            <span>View details</span>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function openDrawer(id) {
+            const event = timelineEvents.find(e => e.id === id);
+            if (!event) return;
+
+            document.getElementById('drawer-category').innerText = event.category;
+            document.getElementById('drawer-date').innerText = event.date;
+            document.getElementById('drawer-title').innerText = event.title;
+            document.getElementById('drawer-subtitle').innerText = event.subtitle;
+            document.getElementById('drawer-desc').innerText = event.description;
+            document.getElementById('drawer-extra').innerText = event.extra || 'No extra telemetry or notes provided for this milestone.';
+
+            const imgContainer = document.getElementById('drawer-image-container');
+            const imgEl = document.getElementById('drawer-image');
+            if (event.image) {
+                imgEl.src = event.image;
+                imgContainer.classList.remove('hidden');
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+
+            document.getElementById('event-drawer').classList.remove('hidden');
+        }
+
+        function closeDrawer() {
+            document.getElementById('event-drawer').classList.add('hidden');
+        }
+
+        function openAddModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+            document.getElementById('add-event-form').reset();
+        }
+
+        function handleAddNewEvent(e) {
+            e.preventDefault();
+            const title = document.getElementById('newEventTitle').value;
+            const date = document.getElementById('newEventDate').value;
+            const category = document.getElementById('newEventCategory').value;
+            const subtitle = document.getElementById('newEventSubtitle').value || 'Custom Timeline Milestone';
+            const image = document.getElementById('newEventImage').value;
+            const description = document.getElementById('newEventDesc').value;
+
+            const newEvent = {
+                id: Date.now(),
+                title,
+                subtitle,
+                date,
+                category,
+                description,
+                image: image || null,
+                extra: "User-generated custom event created dynamically."
+            };
+
+            timelineEvents.unshift(newEvent);
+            closeAddModal();
+            renderTimeline();
+        }
+    </script>
+</body>
+</html>
